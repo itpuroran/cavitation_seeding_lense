@@ -119,6 +119,8 @@ label stop_loop_sigma      # окончание цикла, в кортором 
 undump all_dump
 
 # записываем dump файл
+group type_repuls type != 1
+delete_atoms group type_repuls
 reset_timestep  0
 fix	1 all nvt temp ${T0} ${T0} 0.231832
 dump	all_dump all custom 1 dump_end.txt id type x y z vx vy vz
