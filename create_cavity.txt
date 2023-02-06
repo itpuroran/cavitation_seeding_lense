@@ -10,7 +10,7 @@ variable	n equal 2   			# число отталкивающих частиц с 
 
 variable	epsilon_2 equal 1   		# параметр epsilon для второго типа частиц
 variable	sigma_2 equal 0.5   		# начальный параметр sigma для центральной частицы второго типа 
-variable	sigma_2_max equal ${h}+3   	# максимальный параметр sigma для центральной частицы второго типа 
+variable	sigma_2_max equal ${h}+5   	# максимальный параметр sigma для центральной частицы второго типа 
 
 variable	check_n_step equal 3		# через сколько шагов проверять число частиц внутри полости
 variable    increase_sigma_step equal 50	# через сколько шагов менять параметр sigma
