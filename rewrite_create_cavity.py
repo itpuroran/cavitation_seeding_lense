@@ -7,12 +7,14 @@ R_start, R_stop, delta_R = 3, 3, 1 # interval for lens radios
 n_copy = 2  # the number of copy
 n = 5 # then number of repulsive spheres at the one side
 input_file = 'create_cavity.txt' 
+encoding =  'utf-8' # 'cp1252'
+# full list of encoding: https://docs.python.org/3/library/codecs.html#standard-encodings
 
 
 def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int, 
                         all_lines: list, dump_file: str) -> list:
     
-    with open(dump_file, 'r', encoding='cp1252') as f_in:
+    with open(dump_file, 'r', encoding=encoding) as f_in:
         f_in.readline() # ITEM: TIMESTEP
         f_in.readline() # timestep
         f_in.readline() # ITEM: NUMBER OF ATOMS
@@ -44,7 +46,7 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
         elif 'variable	N equal' in line:
             new_lines.append(f'variable	N equal {n_atoms}\n')
         elif  'read_dump	dump_start.txt' in line:
-            new_lines.append(f'read_dump	dumpL/dump_start_{copy}.txt 100000 x y z vx vy vz box yes replace yes\n')
+            new_lines.append(f'read_dump	dumpL/dump_start_{copy}.txt 0 x y z vx vy vz box yes replace yes\n')
         elif 'variable        self_name string' in line:
             new_lines.append(f'variable        self_name string "create_cavity_files/create_cavity_{n_h}_{n_R}_{copy}"\n')
         
@@ -79,7 +81,7 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
             new_lines.append(f'pair_coeff	1 1 1.0 1.0 6.576\n')
 
         elif 'dump	all_dump' in line:
-            new_lines.append(f'dump	all_dump all custom 150 dumps_twophase/dump_cluster_{n_h}_{n_R}_{copy}.txt id type x y z vx vy vz\n')
+            new_lines.append(f'dump	all_dump all custom 150 dumps_twophase/dump_cluster_h{n_h}_r{n_R}_c{copy} id type x y z vx vy vz\n')
         
         elif '# set sigma for all repulsive particles' in line:
             for i in range(0, len(proportional_coeff), 2):
@@ -116,7 +118,7 @@ if __name__=="__main__":
         all_R.append(R_count)
 
     all_lines = []
-    with open(input_file, 'r', encoding='cp1252') as f_in:
+    with open(input_file, 'r', encoding=encoding) as f_in:
         all_lines = f_in.readlines()
 
     for i in range(len(all_h)):
@@ -124,6 +126,6 @@ if __name__=="__main__":
             for copy in range(n_copy):
                 dump_file = f'dumpL/dump_start_{copy}.txt'
                 rewite_lines = rewrite_input_file(all_h[i], all_R[j], n, copy, i, j, all_lines, dump_file)
-                file_new = f'create_cavity_files/create_cavity_{i}_{j}_{copy}'
-                with open (file_new, 'w', encoding='cp1252') as f_out:
+                file_new = f'create_cavity_files/create_cavity_h{i}_r{j}_c{copy}'
+                with open (file_new, 'w', encoding=encoding) as f_out:
                     f_out.writelines(rewite_lines)
