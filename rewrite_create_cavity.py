@@ -2,10 +2,10 @@ import os
 import math
 
 # input parameters
-h_start, h_stop, delta_h = 2, 2, 1 # interval for lens height
-R_start, R_stop, delta_R = 3, 3, 1 # interval for lens radios
+h_start, h_stop, delta_h = 4, 4, 1 # interval for lens height
+R_start, R_stop, delta_R = 7, 7, 1 # interval for lens radios
 n_copy = 2  # the number of copy
-n = 5 # then number of repulsive spheres at the one side
+n = 10 # then number of repulsive spheres at the one side
 input_file = 'create_cavity.txt' 
 encoding =  'utf-8' # 'cp1252'
 # full list of encoding: https://docs.python.org/3/library/codecs.html#standard-encodings
