@@ -108,7 +108,7 @@ label start_loop_sigma     # начало цикла, в кортором изм
 			run	${check_n_step}
 			unfix 	1
 		next count
-		if "${n_in_cavity} == 1" then "jump ${self_name} stop_loop_sigma"
+		if "${n_in_cavity} == 2*${n}+1" then "jump ${self_name} stop_loop_sigma"
 		variable temp equal ${count}%${increase_sigma_step}
 		if "${temp} != 0" then "jump ${self_name} start_loop_n" 
 	next i
