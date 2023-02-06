@@ -47,8 +47,8 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
             new_lines.append(f'variable	N equal {n_atoms}\n')
         elif  'read_dump	dump_start.txt' in line:
             new_lines.append(f'read_dump	dumpL/dump_start_{copy}.txt 0 x y z vx vy vz box yes replace yes\n')
-        elif 'variable        self_name string' in line:
-            new_lines.append(f'variable        self_name string "create_cavity_files/create_cavity_{n_h}_{n_R}_{copy}"\n')
+        elif 'variable    self_name' in line:
+            new_lines.append(f'variable        self_name string "create_cavity_files/create_cavity_h{n_h}_r{n_R}_c{copy}"\n')
         
         elif '# set coordinates' in line:
             new_lines.append(line)
