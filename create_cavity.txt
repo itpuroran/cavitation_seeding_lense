@@ -1,0 +1,133 @@
+# controlling read_dump
+
+variable	T0 equal 0.7 			# температура жидкости
+
+variable	r_0 equal 1   			# радиус малой полости, которая вырезается для размещения отталкивающей частицы
+
+variable	R equal 4   			# радиус сфер, формирующих линзу
+variable	h equal 1   			# высота (толщина) линзы, деленная на 2
+variable	n equal 2   			# число отталкивающих частиц с одной стороны от центральной 
+
+variable	epsilon_2 equal 1   		# параметр epsilon для второго типа частиц
+variable	sigma_2 equal 0.5   		# начальный параметр sigma для центральной частицы второго типа 
+variable	sigma_2_max equal ${h}+1   	# максимальный параметр sigma для центральной частицы второго типа 
+
+variable	check_n_step equal 3		# через сколько шагов проверять число частиц внутри полости
+variable    increase_sigma_step equal 50	# через сколько шагов менять параметр sigma
+
+variable	N equal 108000 			# число частиц жидкости
+
+variable    self_name string "create_cavity.txt"
+#---------------------------------------------------------------
+
+# общие настройки
+units		lj
+atom_style	atomic
+neighbor	0.5 bin	
+neigh_modify 	every 50 delay 0 check no
+timestep	0.00231832
+
+#---------------------------------------------------------------
+
+# считываем dump файл метастабильной жидкости
+lattice         fcc 1
+region          box block 0 30 0 30 0 30 units box
+create_box	2 box
+create_atoms	1 random ${N} 45 box
+read_dump	dump_start.txt 100000 x y z vx vy vz box yes replace yes #add yes
+mass	1	1.0
+pair_style	lj/cut  6.576
+pair_coeff	1 1 1.0 1.0 6.576
+
+#---------------------------------------------------------------
+
+# задаем координаты отталкивающих частиц (используем скрипт calc_repulsive_pars.py)
+# set coordinates
+
+
+# отношение параметра sigma i-ой частицы к параметру sigma центральной частицы (используем скрипт calc_repulsive_pars.py)
+# set proportional coefficients
+
+
+#---------------------------------------------------------------
+
+# предварительно вырезаем маленькие полости для размещения отталкивающих частиц (используем скрипт calc_repulsive_pars.py)
+# set regions and delete
+ 
+
+#-------------------------------------------------------------
+
+# помещаем в систему отталкивающие частицы 2го типа (используем скрипт calc_repulsive_pars.py)
+# set adding repulsive atoms
+ 
+
+#---------------------------------------------------------------
+
+# для контроля числа частиц в полости
+
+variable 	sphere1_center_x	equal 	lx/2
+variable 	sphere1_center_y	equal 	ly/2-(R-h)
+variable 	sphere1_center_z	equal 	lz/2
+region 		sphere1 sphere ${sphere1_center_x} ${sphere1_center_y} ${sphere1_center_z} ${R} units box side in
+
+variable 	sphere2_center_x	equal 	lx/2
+variable 	sphere2_center_y	equal 	ly/2+(R-h)
+variable 	sphere2_center_z	equal 	lz/2
+region 		sphere2 sphere ${sphere2_center_x} ${sphere2_center_y} ${sphere2_center_z} ${R} units box side in
+
+region 		cavity intersect 2 sphere1 sphere2
+variable	n_in_cavity equal count(all,cavity)
+#---------------------------------------------------------------
+
+thermo		1
+thermo_style 	custom step temp vol density v_n_in_cavity v_n_out_cavity
+reset_timestep  0
+
+variable i loop 1000
+variable count loop 1000
+
+dump	all_dump all custom 150 dump_end.txt id type x y z vx vy vz
+
+label start_loop_sigma     # начало цикла, в кортором изменяется sigma
+	
+	# определяем новое значение sigma (не больше sigma_2_max)
+	variable temp_i equal ${sigma_2}+0.5*$i
+	if "${temp_i} > ${sigma_2_max}" &
+		then "variable new_sigma equal ${sigma_2_max}" & 
+		else "variable new_sigma equal ${temp_i}"
+	# set sigma for all repulsive particles
+	
+	# set all pair coefficients
+
+
+	label start_loop_n # начало цикла, в кортором проверяем число частиц в полости
+
+		print "Now sigma is equal ${new_sigma}"	
+		print "Now count is equal ${count}"			
+			fix	1 all nvt temp ${T0} ${T0} 0.231832
+			run	${check_n_step}
+			unfix 	1
+		next count
+		if "${n_in_cavity} == 1" then "jump ${self_name} stop_loop_sigma"
+		variable temp equal ${count}%${increase_sigma_step}
+		if "${temp} != 0" then "jump ${self_name} start_loop_n" 
+	next i
+	jump ${self_name} start_loop_sigma
+
+label stop_loop_sigma      # окончание цикла, в кортором изменяется sigma
+undump all_dump
+
+# записываем dump файл
+reset_timestep  0
+fix	1 all nvt temp ${T0} ${T0} 0.231832
+dump	all_dump all custom 1 dump_end.txt id type x y z vx vy vz
+run	1
+unfix 	1
+
+
+#===============================================================
+#=============<>     HAPPY END !!!      <>======================
+#===============================================================
+
+
+
