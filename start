@@ -1,0 +1,31 @@
+#!/bin/sh
+trap '' 0 1 2 9 15
+
+n_h=
+n_rad=
+n_copy=
+
+for (( h=0; h < $n_h; h++ ))
+do
+	for (( r=0; r < $n_rad; r++ ))
+	do
+        for (( c=0; c < $n_copy; c++ ))
+	    do
+	        inif0="create_cavity_files/create_cavity_h";
+	        inif1="_r";
+	        inif2="_c";
+
+	        outf0="dumps_end/dump_end_h";
+	        outf1="_r";
+	        outf2="_c";     
+
+	        ini_file=${inif0}${h}${inif1}${r}${inif2}${c};
+	        out_file=${outf0}${h}${outf1}${r}${outf2}${c};
+
+	        if ! [ -f "$out_file" ]; then
+	            sbatch -n8 -t40 -i $ini_file --wrap='srun lammps_16_03_2018';
+	            echo "$i";
+	        fi
+        done;
+	done;
+done;
