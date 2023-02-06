@@ -66,12 +66,12 @@ pair_coeff	1 1 1.0 1.0 6.576
 # для контроля числа частиц в полости
 
 variable 	sphere1_center_x	equal 	lx/2
-variable 	sphere1_center_y	equal 	ly/2-(R-h)
+variable 	sphere1_center_y	equal 	ly/2-${R}+${h}
 variable 	sphere1_center_z	equal 	lz/2
 region 		sphere1 sphere ${sphere1_center_x} ${sphere1_center_y} ${sphere1_center_z} ${R} units box side in
 
 variable 	sphere2_center_x	equal 	lx/2
-variable 	sphere2_center_y	equal 	ly/2+(R-h)
+variable 	sphere2_center_y	equal 	ly/2+${R}-${h}
 variable 	sphere2_center_z	equal 	lz/2
 region 		sphere2 sphere ${sphere2_center_x} ${sphere2_center_y} ${sphere2_center_z} ${R} units box side in
 
@@ -80,7 +80,7 @@ variable	n_in_cavity equal count(all,cavity)
 #---------------------------------------------------------------
 
 thermo		1
-thermo_style 	custom step temp vol density v_n_in_cavity v_n_out_cavity
+thermo_style 	custom step temp vol density v_n_in_cavity
 reset_timestep  0
 
 variable i loop 1000
