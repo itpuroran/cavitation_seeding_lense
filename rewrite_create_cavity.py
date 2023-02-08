@@ -5,7 +5,7 @@ import math
 h_start, h_stop, delta_h = 4, 4, 1 # interval for lens height
 R_start, R_stop, delta_R = 7, 7, 1 # interval for lens radios
 n_copy = 2  # the number of copy
-n = 10 # then number of repulsive spheres at the one side
+n = 2 # then number of repulsive spheres at the one side
 input_file = 'create_cavity.txt' 
 encoding =  'utf-8' # 'cp1252'
 # full list of encoding: https://docs.python.org/3/library/codecs.html#standard-encodings
@@ -27,11 +27,16 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
     x0, y0, z0 = (lx0+lxl)/2, (ly0+lyl)/2, (lz0+lzl)/2
     L = math.sqrt(R**2 - (R-h)**2)
     
-    coords =[(x0+i*k*L/(n+1), y0, z0, i + 2) for i in range(1, n + 1) for k in [-1, 1]]
-    coords.insert(0, (x0, y0, z0, 2))
+    all_coords =[(x0+i*k*L/(n+1), y0, z0, i + 2) for i in range(1, n + 1) for k in [-1, 1]]
+    all_coords.extend([(x0, y0+i*k*L/(n+1), z0, i + 2) for i in range(1, n + 1) for k in [-1, 1]])
+    all_coords.insert(0, (x0, y0, z0, 2))
 
-    radii = [R - math.sqrt((R - h)**2 + (coords[i][0] - x0)**2) for i in range(0, 2*n + 1)]
-    proportional_coeff = [radii[i] / h for i in range(0, 2*n + 1)]
+    radii = [0 for _ in range(n + 3)]
+    coords = [(x0+i*L/(n+1), y0, z0, i + 2) for i in range(n + 1)]
+    for coord in coords:
+        radii[coord[3]] = R - math.sqrt((R - h)**2 + (coord[0] - x0)**2)
+
+    proportional_coeff = [rad / h for rad in radii]
 
     new_lines = []
     for line in all_lines:
@@ -53,7 +58,7 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
         elif '# set coordinates' in line:
             new_lines.append(line)
             par_count = 0
-            for coord in coords:
+            for coord in all_coords:
                 new_lines.append(f'variable 	center_x_{par_count}	equal 	{coord[0]}\n')
                 new_lines.append(f'variable 	center_y_{par_count}	equal 	{coord[1]}\n')
                 new_lines.append(f'variable 	center_z_{par_count}	equal 	{coord[2]}\n')
@@ -68,15 +73,15 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
         
         elif '# set regions and delete' in line:
             new_lines.append(line)
-            for i in range(len(coords)):
+            for i in range(len(all_coords)):
                 new_lines.append(f'region 		small_sphere_{i} sphere ${{center_x_{i}}} ${{center_y_{i}}} ${{center_z_{i}}} ${{r_0}} units box\n')
                 new_lines.append(f'delete_atoms	region small_sphere_{i}\n')
 
         elif '# set adding repulsive atoms' in line:
             new_lines.append(line)
-            for i in range(len(coords)):
-                new_lines.append(f'create_atoms	{coords[i][3]} single ${{center_x_{i}}} ${{center_y_{i}}} ${{center_z_{i}}} units box\n')
-                new_lines.append(f'mass		{coords[i][3]} 10000000000.0\n')
+            for i in range(len(all_coords)):
+                new_lines.append(f'create_atoms	{all_coords[i][3]} single ${{center_x_{i}}} ${{center_y_{i}}} ${{center_z_{i}}} units box\n')
+                new_lines.append(f'mass		{all_coords[i][3]} 10000000000.0\n')
             new_lines.append(f'pair_coeff	* * 1.0 1.0 0.0001\n')
             new_lines.append(f'pair_coeff	1 1 1.0 1.0 6.576\n')
 
@@ -84,12 +89,12 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
             new_lines.append(f'dump	all_dump all custom 150 dumps_twophase/dump_cluster_h{n_h}_r{n_R}_c{copy} id type x y z vx vy vz\n')
         
         elif '# set sigma for all repulsive particles' in line:
-            for i in range(0, len(proportional_coeff), 2):
-                new_lines.append(f'     variable new_sigma_{coords[i][3]} equal ${{new_sigma}}*{proportional_coeff[i]}\n')
+            for i in range(2, n + 3):
+                new_lines.append(f'     variable new_sigma_{coords[i - 2][3]} equal ${{new_sigma}}*{proportional_coeff[i]}\n')
 
         elif '# set all pair coefficients' in line:
-            for i in range(0, len(coords), 2):
-                new_lines.append(f'     pair_coeff  1 {coords[i][3]} ${{epsilon_2}} ${{new_sigma_{coords[i][3]}}}  6.576\n')
+            for i in range(2, n + 3):
+                new_lines.append(f'     pair_coeff  1 {coords[i - 2][3]} ${{epsilon_2}} ${{new_sigma_{all_coords[i][3]}}}  6.576\n')
 
         else:
             new_lines.append(line)
