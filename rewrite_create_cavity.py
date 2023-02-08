@@ -66,8 +66,8 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
         
         elif '# set proportional coefficients' in line:
             new_lines.append(line)
-            par_count = 0
-            for coeff in proportional_coeff:
+            par_count = 2
+            for coeff in proportional_coeff[2:]:
                 new_lines.append(f'variable	prop_coeff_{par_count}	equal	{coeff}\n')
                 par_count += 1 
         
@@ -90,7 +90,7 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
         
         elif '# set sigma for all repulsive particles' in line:
             for i in range(2, n + 3):
-                new_lines.append(f'     variable new_sigma_{coords[i - 2][3]} equal ${{new_sigma}}*{proportional_coeff[i]}\n')
+                new_lines.append(f'     variable new_sigma_{coords[i - 2][3]} equal ${{new_sigma}}*${{prop_coeff_{i}}}\n')
 
         elif '# set all pair coefficients' in line:
             for i in range(2, n + 3):
