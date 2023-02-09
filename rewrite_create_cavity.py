@@ -5,7 +5,8 @@ import math
 h_start, h_stop, delta_h = 4, 4, 1 # interval for lens height
 R_start, R_stop, delta_R = 7, 7, 1 # interval for lens radios
 n_copy = 2  # the number of copy
-n = 2 # then number of repulsive spheres at the one side
+n = 2 # the number of repulsive spheres at the one side
+n_diag = 2 # the number of diagonal lines in one quarter
 input_file = 'create_cavity.txt' 
 encoding =  'utf-8' # 'cp1252'
 # full list of encoding: https://docs.python.org/3/library/codecs.html#standard-encodings
@@ -27,8 +28,24 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
     x0, y0, z0 = (lx0+lxl)/2, (ly0+lyl)/2, (lz0+lzl)/2
     L = math.sqrt(R**2 - (R-h)**2)
     
+    # OX
     all_coords =[(x0+i*k*L/(n+1), y0, z0, i + 2) for i in range(1, n + 1) for k in [-1, 1]]
-    all_coords.extend([(x0, y0+i*k*L/(n+1), z0, i + 2) for i in range(1, n + 1) for k in [-1, 1]])
+
+    # diagonals
+    phi = math.pi / (2 * (n_diag + 1))
+    diag_coords = []
+    for i in range(1, n + 1):
+        for k in [-1, 1]:
+            for p in range(1, 2 * (n_diag + 1)):
+                x = x0+i*k*L/(n+1)
+                alpha = phi * p
+                x_new = x0 + (x - x0) * math.cos(alpha)
+                y_new = y0 + (x - x0) * math.sin(alpha)
+                z_new = z0
+                diag_coords.append((x_new, y_new, z_new, i + 2))
+    all_coords.extend(diag_coords)
+    
+    # center
     all_coords.insert(0, (x0, y0, z0, 2))
 
     radii = [0 for _ in range(n + 3)]
