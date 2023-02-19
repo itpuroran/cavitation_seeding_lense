@@ -63,6 +63,8 @@ def rewrite_input_file(h: float, R: float, n: int, copy: int, n_h: int, n_R: int
             new_lines.append(f'variable	h equal {h}\n')
         elif 'variable	n equal' in line:
             new_lines.append(f'variable	n equal {n}\n')
+        elif 'variable    n_min equal' in line:
+            new_lines.append(f'variable    n_min equal {2 * n * (n_diag * 2 + 2) + 1}\n')
         elif 'create_box	2 box' in line:
             new_lines.append(f'create_box	{n + 2} box\n')
         elif 'variable	N equal' in line:

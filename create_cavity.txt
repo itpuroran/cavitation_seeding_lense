@@ -7,7 +7,7 @@ variable	r_0 equal 1   			# radius of the small cavity that is cut to place the 
 variable	R equal 4   			# radius of the spheres forming the lens
 variable	h equal 1   			# height (thickness) of the lens divided by 2
 variable	n equal 2   			# the number of repulsive particles on one side of the central 
-variable    n_min equal 4*${n}+1  # total number of repulsive particles
+variable    n_min equal 1  # total number of repulsive particles
 
 variable	epsilon_2 equal 1   		# the epsilon parameter for the repulsive particles
 variable	sigma_2 equal 0.5   		# initial sigma parameter for the central repulsive particle 
