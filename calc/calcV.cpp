@@ -170,7 +170,7 @@ void number_to_jlk (int numb, int &j, int &l, int &k, int num_cells)
 	 double cluster_volume0_av = 0;
 	 double grow_prob = 0;
 	 
-		 std::string file_result="results/result_h"+ h + "_r" + r + "_c" + c;
+		 std::string file_result="results/result_h"+ std::to_string(h) + "_r" + std::to_string(r) + "_c" + std::to_string(c);
          std::ofstream f_result(file_result,std::ios_base::out | std::ios_base::app);
 		 std::cout << h << " " << r << " " << c <<  std::endl;
 
@@ -182,7 +182,7 @@ void number_to_jlk (int numb, int &j, int &l, int &k, int num_cells)
 		 double lboxz0;
 		 double lboxzl;
 	
-		 std::string fout_dump = "dumps_end/dump_end_h" + h + "_r" +  r + "_c" + c;
+		 std::string fout_dump = "dumps_end/dump_end_h"+ std::to_string(h) + "_r" + std::to_string(r) + "_c" + std::to_string(c);
 		 std::ifstream file;
 		 std::string line;
 

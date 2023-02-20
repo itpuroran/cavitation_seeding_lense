@@ -71,7 +71,7 @@ def lammps_random_number(lammps_filename, nWalkers):
                         if not line.startswith('#'):
                             columns = line.split()
                             if len(columns) >= 1:
-                                line = line.replace(columns[1], 'dumps_twophase/dump_liquid_cluster_h'+str(h)+'_r'+str(r)+'_c'+str(c))  
+                                line = line.replace(columns[1], 'dumps_twophase/dump_cluster_h'+str(h)+'_r'+str(r)+'_c'+str(c))  
                                 line = line + '\n'
                     if line.find('all_dump') != -1:
                         line = line.strip()
@@ -98,11 +98,10 @@ def lammps_random_number(lammps_filename, nWalkers):
 nh = _
 nrad = _
 ncopy = _
+
 nWalkers=nrad*ncopy
 input_filename = "cav_npt"
-interfaces = np.linspace(1000, 20000, 2) 
-trials = np.empty(2, dtype=int)
-trials.fill(10000)
+
 # Use if you have many equally-spaced interfaces
 
 #Generate the new lammps input files
