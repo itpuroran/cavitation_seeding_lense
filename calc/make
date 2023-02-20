@@ -1,0 +1,6 @@
+#!/bin/bash
+
+g++ --std=c++11 -E calcV.cpp -o calcV.ii
+g++ --std=c++11 -S calcV.ii -o calcV.s
+as calcV.s -o calcV.o
+g++ --std=c++11 calcV.o -o calcV

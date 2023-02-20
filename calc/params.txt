@@ -1,0 +1,4 @@
+still_sep 1
+num_neighbors 7
+num_cells 100
+

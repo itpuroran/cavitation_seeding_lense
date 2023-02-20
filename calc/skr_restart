@@ -1,0 +1,31 @@
+#!/bin/bash
+trap '' 0 1 2 9 15
+
+n_h=
+nrad=_
+ncopy=_
+
+for (( h=0; h < $nrad; h++ ))
+do
+    for (( r=0; r < $nrad; r++ ))
+    do
+    	for (( c=0; c < ${ncopy}; c++ ))
+    	do
+    	    inif0="ini_files/cav_npt_h";
+            inif1='_r'
+            inif2='_c'
+
+            outf0="dumps_end/dump_end_h"
+            outf1='_r'
+            outf2='_c'
+
+    	    input_file=${inif0}${h}${inif1}${r}${inif2}${c};
+    	    output_file=${outf0}${h}${outf1}${r}${outf2}${c};
+
+    	    if ! [ -f "${output_file}" ]; then
+    	    sbatch -n32 -t40 -i ${input_file} --wrap='srun lammps_16_03_2018';
+    	    echo "$i";
+    	    fi
+    	done;
+    done;
+done;
