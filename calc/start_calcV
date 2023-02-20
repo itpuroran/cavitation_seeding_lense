@@ -4,23 +4,6 @@ trap '' 0 1 2 9 15
 nh= _
 nrad=_
 ncopy=_
-for (( i=0; i<$nrad; i++ ))
-do
-	for (( j=0; j<$ncopy; j++ ))
-	do	
-		a="sbatch -n 1 -t 240 --wrap='srun ./calcV "
-		b="'"
-		c=" " 
-		d=$a$i$c$j$b
-		e="results/result_"
-		f="_"
-		g=".txt"
-		file_result=$e$i$f$j$g
-		if ! [ -f "$file_result" ]; then
-			echo "$d" >> temp
-		fi
-	done;
-done;
 
 for (( h=0; h < $nrad; h++ ))
 do
@@ -35,10 +18,17 @@ do
     	    result_file=${resf0}${h}${resf1}${r}${resf2}${c};
 
     	    if ! [ -f "${result_file}" ]; then
-    	    sbatch -n1 -t240 --wrap='srun ./calcV ${h} ${r} ${c}';
-    	    echo "$i";
+                command0="sbatch -n1 -t240 --wrap='srun ./calcV "
+                sep=" "
+                command2="'"
+    	        command=${command0}${h}${sep}${r}${sep}${c}${command2};
+    	        echo "$command";
+                echo "$command" >> temp
     	    fi
     	done;
     done;
 done;
 
+chmod 777 temp
+./temp
+rm temp
