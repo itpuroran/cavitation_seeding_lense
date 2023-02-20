@@ -1,6 +1,0 @@
-#!/bin/bash
-
-g++ --std=c++11 -E analysis.cpp -o analysis.ii
-g++ --std=c++11 -S analysis.ii -o analysis.s
-as analysis.s -o analysis.o
-g++ --std=c++11 analysis.o -o analysis
